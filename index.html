@@ -1,0 +1,277 @@
+<title>Dinamita — Content Feed</title>
+<style>
+  :root{
+    --paper:#FDFCFA; --card:#FFFFFF; --ink:#221D18; --muted:#8A8178;
+    --line:#EBE5DD; --accent:#A65B3F; --chipbg:#F4EFE9;
+    --ok:#3E7C4F; --ok-bg:#EAF2EC;
+    --prog:#4A6FA5; --prog-bg:#EBF0F7;
+    --todo:#8A8178; --todo-bg:#F1EDE8;
+    --shadow:0 1px 2px rgba(34,29,24,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#131110; --card:#1B1917; --ink:#EDE8E2; --muted:#9A9189;
+      --line:#2A2622; --accent:#C98A6F; --chipbg:#242019;
+      --ok:#8FBF9B; --ok-bg:#1E2A21;
+      --prog:#93AFD4; --prog-bg:#1D2431;
+      --todo:#9A9189; --todo-bg:#242019;
+      --shadow:0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#FDFCFA; --card:#FFFFFF; --ink:#221D18; --muted:#8A8178;
+    --line:#EBE5DD; --accent:#A65B3F; --chipbg:#F4EFE9;
+    --ok:#3E7C4F; --ok-bg:#EAF2EC;
+    --prog:#4A6FA5; --prog-bg:#EBF0F7;
+    --todo:#8A8178; --todo-bg:#F1EDE8;
+    --shadow:0 1px 2px rgba(34,29,24,.05);
+  }
+  :root[data-theme="dark"]{
+    --paper:#131110; --card:#1B1917; --ink:#EDE8E2; --muted:#9A9189;
+    --line:#2A2622; --accent:#C98A6F; --chipbg:#242019;
+    --ok:#8FBF9B; --ok-bg:#1E2A21;
+    --prog:#93AFD4; --prog-bg:#1D2431;
+    --todo:#9A9189; --todo-bg:#242019;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+  html,body{background:var(--paper);}
+  body{
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); margin:0; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:420px; margin:0 auto; padding:16px 12px 48px;}
+
+  /* ---------- header ---------- */
+  .profile{display:flex; align-items:center; gap:14px; padding:4px 4px 14px;}
+  .avatar{
+    width:52px; height:52px; border-radius:50%; flex:none;
+    display:grid; place-items:center;
+    background:linear-gradient(135deg,#A3B18A,#A65B3F);
+    color:#FDFCFA; font-family:Georgia,serif; font-size:22px; font-style:italic;
+  }
+  .who{min-width:0;}
+  .handle{font-weight:600; font-size:15px; letter-spacing:.01em;}
+  .sub{color:var(--muted); font-size:12.5px; margin-top:2px;}
+  .counts{margin-left:auto; text-align:right; flex:none;}
+  .counts b{font-size:17px; font-variant-numeric:tabular-nums; display:block;}
+  .counts span{color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em;}
+
+  /* ---------- controls ---------- */
+  .controls{
+    position:sticky; top:0; z-index:5; background:var(--paper);
+    padding:8px 0 10px; display:flex; gap:8px; align-items:center;
+    border-bottom:1px solid var(--line); margin-bottom:14px;
+  }
+  .chips{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    border:1px solid var(--line); background:var(--card); color:var(--muted);
+    font-size:12px; padding:5px 11px; border-radius:999px; cursor:pointer;
+    white-space:nowrap; font-family:inherit;
+  }
+  .chip[aria-pressed="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .chip:focus-visible,.viewbtn:focus-visible,.openlink:focus-visible{
+    outline:2px solid var(--accent); outline-offset:2px;
+  }
+  .viewtoggle{margin-left:auto; display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; flex:none;}
+  .viewbtn{background:var(--card); border:none; padding:5px 9px; cursor:pointer; color:var(--muted); display:grid; place-items:center;}
+  .viewbtn[aria-pressed="true"]{background:var(--ink); color:var(--paper);}
+  .viewbtn svg{display:block;}
+
+  /* ---------- feed ---------- */
+  .feed{display:flex; flex-direction:column; gap:22px;}
+  .post{background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); overflow:hidden;}
+  .post-head{display:flex; align-items:center; gap:9px; padding:10px 12px;}
+  .post-head .avatar{width:30px; height:30px; font-size:13px;}
+  .post-meta{min-width:0;}
+  .post-handle{font-size:13px; font-weight:600;}
+  .post-date{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .status{
+    margin-left:auto; flex:none; font-size:11px; font-weight:600;
+    padding:3px 9px; border-radius:999px; letter-spacing:.02em;
+  }
+  .s-done{color:var(--ok); background:var(--ok-bg);}
+  .s-prog{color:var(--prog); background:var(--prog-bg);}
+  .s-todo{color:var(--todo); background:var(--todo-bg);}
+
+  /* ---------- cover tile ---------- */
+  .cover{position:relative; aspect-ratio:1/1; display:flex; align-items:flex-end; padding:18px; box-sizing:border-box; color:#fff;}
+  .cover::after{content:""; position:absolute; inset:0;
+    background:radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,.22), transparent 55%),
+               linear-gradient(to top, rgba(20,14,10,.38), transparent 55%);
+    pointer-events:none;}
+  .cover .eyebrow{position:absolute; top:16px; left:18px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; opacity:.9; z-index:1;}
+  .cover h2{
+    position:relative; z-index:1; margin:0;
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    font-weight:500; font-size:clamp(20px,6vw,26px); line-height:1.18; text-wrap:balance;
+    text-shadow:0 1px 8px rgba(20,14,10,.25);
+  }
+  /* platform palettes */
+  .p-instagram{background:linear-gradient(140deg,#B98ABF,#7D4E86);}
+  .p-substack{background:linear-gradient(140deg,#E5A268,#B96E33);}
+  .p-linkedin{background:linear-gradient(140deg,#7FA3C6,#3E6A96);}
+  .p-none{background:linear-gradient(140deg,#C4B49C,#8C7A60);}
+
+  /* ---------- card body ---------- */
+  .body{padding:11px 14px 14px;}
+  .rowline{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .tag{
+    font-size:11px; font-weight:600; letter-spacing:.04em;
+    background:var(--chipbg); color:var(--muted);
+    padding:3px 9px; border-radius:999px;
+  }
+  .openlink{margin-left:auto; font-size:11.5px; color:var(--accent); text-decoration:none; white-space:nowrap;}
+  .openlink:hover{text-decoration:underline;}
+
+  /* ---------- grid view ---------- */
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:3px;}
+  .grid a.cell{position:relative; display:block; aspect-ratio:1/1; overflow:hidden; color:#fff; text-decoration:none;}
+  .cell .cover{position:absolute; inset:0; padding:10px;}
+  .cell .cover h2{font-size:12.5px; line-height:1.25; text-shadow:0 1px 6px rgba(20,14,10,.35);}
+  .cell .cover .eyebrow{display:none;}
+  .cell .dot{position:absolute; left:9px; bottom:9px; z-index:2; width:8px; height:8px; border-radius:50%; box-shadow:0 0 0 2px rgba(255,255,255,.75);}
+  .d-done{background:#4C9960;} .d-prog{background:#6E93C4;} .d-todo{background:#B9B0A6;}
+  .cell .celldate{position:absolute; right:9px; bottom:7px; z-index:2; font-size:10px; font-variant-numeric:tabular-nums; text-shadow:0 1px 4px rgba(0,0,0,.5);}
+
+  .legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; color:var(--muted); font-size:11px;}
+  .legend i{width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px;}
+  .empty{
+    border:1px dashed var(--line); border-radius:12px;
+    color:var(--muted); text-align:center; padding:44px 24px; font-size:13.5px; line-height:1.6;
+  }
+  .empty a{color:var(--accent);}
+  .foot{margin-top:26px; text-align:center; color:var(--muted); font-size:11px; line-height:1.6;}
+  [hidden]{display:none !important;}
+</style>
+
+<div class="wrap">
+  <header class="profile">
+    <div class="avatar">d</div>
+    <div class="who">
+      <div class="handle">Dinamita · content planning</div>
+      <div class="sub">Feed preview · Notion “Dinamita - content planing”</div>
+    </div>
+    <div class="counts"><b id="count">0</b><span>posts</span></div>
+  </header>
+
+  <div class="controls">
+    <div class="chips" id="chips" role="group" aria-label="Filtrar por plataforma">
+      <button class="chip" data-f="all" aria-pressed="true">Todos</button>
+      <button class="chip" data-f="Instagram" aria-pressed="false">Instagram</button>
+      <button class="chip" data-f="substack" aria-pressed="false">Substack</button>
+      <button class="chip" data-f="linkedin" aria-pressed="false">LinkedIn</button>
+    </div>
+    <div class="viewtoggle" role="group" aria-label="Vista">
+      <button class="viewbtn" id="btnFeed" aria-pressed="true" title="Vista feed">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1.5" y="1.5" width="11" height="4.4" rx="1"/><rect x="1.5" y="8.1" width="11" height="4.4" rx="1"/></svg>
+      </button>
+      <button class="viewbtn" id="btnGrid" aria-pressed="false" title="Vista grid">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1.5" y="1.5" width="4.4" height="4.4" rx="1"/><rect x="8.1" y="1.5" width="4.4" height="4.4" rx="1"/><rect x="1.5" y="8.1" width="4.4" height="4.4" rx="1"/><rect x="8.1" y="8.1" width="4.4" height="4.4" rx="1"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main id="feed" class="feed" aria-live="polite"></main>
+  <main id="grid" class="grid" hidden></main>
+  <div class="empty" id="empty" hidden>
+    Nada por aquí todavía.<br>
+    Añade posts a la base <b>“Dinamita - content planing”</b> en Notion
+    y pídele a Claude que actualice el widget.
+  </div>
+
+  <div class="legend" id="legend" hidden>
+    <span><i class="d-done"></i>Publicado</span>
+    <span><i class="d-prog"></i>Planificado</span>
+    <span><i class="d-todo"></i>Sin empezar</span>
+  </div>
+
+  <p class="foot">
+    Snapshot de la base de Notion — se actualiza al pedirle a Claude “refresh the feed widget”.<br>
+    Las portadas se generan a partir del título y la plataforma.
+  </p>
+</div>
+
+<script>
+/* Rows from Notion database "Dinamita - content planing"
+   (collection://39e3cb11-63a6-808d-b432-000b91030930) — snapshot 2026-07-15 */
+const POSTS = [
+  {title:"Sin título", estado:"Sin empezar", tags:[], fecha:"2026-07-15",
+   url:"https://app.notion.com/p/39e3cb1163a6808ba72bd345a0ee8774"}
+];
+
+const STATUS = {
+  "Publicado":  {cls:"s-done", dot:"d-done"},
+  "Planificado":{cls:"s-prog", dot:"d-prog"},
+  "Sin empezar":{cls:"s-todo", dot:"d-todo"}
+};
+const platClass = tags => {
+  const t = (tags[0] || "").toLowerCase();
+  return t.includes("insta") ? "p-instagram" : t.includes("sub") ? "p-substack" : t.includes("link") ? "p-linkedin" : "p-none";
+};
+const fmtDate = d => d ? new Date(d + "T12:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"}) : "Sin fecha";
+const shortDate = d => d ? new Date(d + "T12:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"}) : "";
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+
+function coverHTML(p){
+  return '<div class="cover ' + platClass(p.tags) + '">'
+    + '<span class="eyebrow">' + (p.tags.length ? esc(p.tags.join(" · ")) : "Sin plataforma") + '</span>'
+    + '<h2>' + esc(p.title) + '</h2></div>';
+}
+
+function renderFeed(list){
+  return list.map(p => {
+    const st = STATUS[p.estado] || STATUS["Sin empezar"];
+    return '<article class="post">'
+      + '<div class="post-head"><div class="avatar">d</div>'
+      +   '<div class="post-meta"><div class="post-handle">dinamita</div>'
+      +   '<div class="post-date">' + fmtDate(p.fecha) + '</div></div>'
+      +   '<span class="status ' + st.cls + '">' + p.estado + '</span></div>'
+      + coverHTML(p)
+      + '<div class="body"><div class="rowline">'
+      +   p.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join("")
+      +   '<a class="openlink" href="' + p.url + '" target="_blank" rel="noopener">Abrir en Notion ↗</a>'
+      + '</div></div></article>';
+  }).join("");
+}
+
+function renderGrid(list){
+  return list.map(p => {
+    const st = STATUS[p.estado] || STATUS["Sin empezar"];
+    return '<a class="cell" href="' + p.url + '" target="_blank" rel="noopener" title="' + esc(p.title) + ' · ' + p.estado + '">'
+      + coverHTML(p)
+      + '<span class="dot ' + st.dot + '"></span>'
+      + (p.fecha ? '<span class="celldate">' + shortDate(p.fecha) + '</span>' : '')
+      + '</a>';
+  }).join("");
+}
+
+let filter = "all", view = "feed";
+const $ = id => document.getElementById(id);
+
+function draw(){
+  const list = POSTS.filter(p => filter === "all" || p.tags.includes(filter));
+  $("count").textContent = list.length;
+  $("empty").hidden = list.length > 0;
+  $("feed").hidden = view !== "feed" || list.length === 0;
+  $("grid").hidden = view !== "grid" || list.length === 0;
+  $("legend").hidden = view !== "grid" || list.length === 0;
+  if(view === "feed"){ $("feed").innerHTML = renderFeed(list); }
+  else { $("grid").innerHTML = renderGrid(list); }
+}
+
+$("chips").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if(!b) return;
+  filter = b.dataset.f;
+  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b ? "true" : "false"));
+  draw();
+});
+$("btnFeed").addEventListener("click", () => { view = "feed"; syncView(); });
+$("btnGrid").addEventListener("click", () => { view = "grid"; syncView(); });
+function syncView(){
+  $("btnFeed").setAttribute("aria-pressed", view === "feed" ? "true" : "false");
+  $("btnGrid").setAttribute("aria-pressed", view === "grid" ? "true" : "false");
+  draw();
+}
+draw();
+</script>
