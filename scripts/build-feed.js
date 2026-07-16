@@ -259,10 +259,10 @@ function renderPage(posts, actionsUrl) {
       <button class="chip" data-f="linkedin" aria-pressed="false">LinkedIn</button>
     </div>
     <div class="viewtoggle" role="group" aria-label="Vista">
-      <button class="viewbtn" id="btnFeed" aria-pressed="true" title="Vista feed">
+      <button class="viewbtn" id="btnFeed" aria-pressed="false" title="Vista feed">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1.5" y="1.5" width="11" height="4.4" rx="1"/><rect x="1.5" y="8.1" width="11" height="4.4" rx="1"/></svg>
       </button>
-      <button class="viewbtn" id="btnGrid" aria-pressed="false" title="Vista grid">
+      <button class="viewbtn" id="btnGrid" aria-pressed="true" title="Vista grid">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1.5" y="1.5" width="4.4" height="4.4" rx="1"/><rect x="8.1" y="1.5" width="4.4" height="4.4" rx="1"/><rect x="1.5" y="8.1" width="4.4" height="4.4" rx="1"/><rect x="8.1" y="8.1" width="4.4" height="4.4" rx="1"/></svg>
       </button>
     </div>
@@ -339,7 +339,7 @@ function renderGrid(list){
   }).join("");
 }
 
-let filter = "all", view = "feed";
+let filter = "all", view = "grid";
 const $ = function(id){ return document.getElementById(id); };
 
 function draw(){
