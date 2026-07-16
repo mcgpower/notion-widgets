@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
 <title>Dinamita — Content Feed</title>
 <style>
   :root{
@@ -18,22 +24,6 @@
       --shadow:0 1px 2px rgba(0,0,0,.4);
     }
   }
-  :root[data-theme="light"]{
-    --paper:#FDFCFA; --card:#FFFFFF; --ink:#221D18; --muted:#8A8178;
-    --line:#EBE5DD; --accent:#A65B3F; --chipbg:#F4EFE9;
-    --ok:#3E7C4F; --ok-bg:#EAF2EC;
-    --prog:#4A6FA5; --prog-bg:#EBF0F7;
-    --todo:#8A8178; --todo-bg:#F1EDE8;
-    --shadow:0 1px 2px rgba(34,29,24,.05);
-  }
-  :root[data-theme="dark"]{
-    --paper:#131110; --card:#1B1917; --ink:#EDE8E2; --muted:#9A9189;
-    --line:#2A2622; --accent:#C98A6F; --chipbg:#242019;
-    --ok:#8FBF9B; --ok-bg:#1E2A21;
-    --prog:#93AFD4; --prog-bg:#1D2431;
-    --todo:#9A9189; --todo-bg:#242019;
-    --shadow:0 1px 2px rgba(0,0,0,.4);
-  }
   html,body{background:var(--paper);}
   body{
     font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -41,7 +31,6 @@
   }
   .wrap{max-width:420px; margin:0 auto; padding:16px 12px 48px;}
 
-  /* ---------- header ---------- */
   .profile{display:flex; align-items:center; gap:14px; padding:4px 4px 14px;}
   .avatar{
     width:52px; height:52px; border-radius:50%; flex:none;
@@ -56,7 +45,19 @@
   .counts b{font-size:17px; font-variant-numeric:tabular-nums; display:block;}
   .counts span{color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em;}
 
-  /* ---------- controls ---------- */
+  .actionbar{display:flex; gap:8px; justify-content:flex-end; padding:0 4px 12px;}
+  .abtn{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:600; text-decoration:none; cursor:pointer;
+    padding:6px 13px; border-radius:999px; letter-spacing:.02em;
+  }
+  .abtn.primary{background:var(--accent); color:#FDFCFA;}
+  .abtn.primary:hover{filter:brightness(1.08);}
+  .abtn.ghost{border:1px solid var(--line); background:var(--card); color:var(--ink);}
+  .abtn.ghost:hover{border-color:var(--accent); color:var(--accent);}
+  .abtn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .abtn svg{display:block;}
+
   .controls{
     position:sticky; top:0; z-index:5; background:var(--paper);
     padding:8px 0 10px; display:flex; gap:8px; align-items:center;
@@ -70,15 +71,12 @@
     white-space:nowrap; font-family:inherit;
   }
   .chip[aria-pressed="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink);}
-  .chip:focus-visible,.viewbtn:focus-visible,.openlink:focus-visible{
-    outline:2px solid var(--accent); outline-offset:2px;
-  }
+  .chip:focus-visible,.viewbtn:focus-visible,.openlink:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
   .viewtoggle{margin-left:auto; display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; flex:none;}
   .viewbtn{background:var(--card); border:none; padding:5px 9px; cursor:pointer; color:var(--muted); display:grid; place-items:center;}
   .viewbtn[aria-pressed="true"]{background:var(--ink); color:var(--paper);}
   .viewbtn svg{display:block;}
 
-  /* ---------- feed ---------- */
   .feed{display:flex; flex-direction:column; gap:22px;}
   .post{background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); overflow:hidden;}
   .post-head{display:flex; align-items:center; gap:9px; padding:10px 12px;}
@@ -86,20 +84,19 @@
   .post-meta{min-width:0;}
   .post-handle{font-size:13px; font-weight:600;}
   .post-date{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
-  .status{
-    margin-left:auto; flex:none; font-size:11px; font-weight:600;
-    padding:3px 9px; border-radius:999px; letter-spacing:.02em;
-  }
+  .status{margin-left:auto; flex:none; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; letter-spacing:.02em;}
   .s-done{color:var(--ok); background:var(--ok-bg);}
   .s-prog{color:var(--prog); background:var(--prog-bg);}
   .s-todo{color:var(--todo); background:var(--todo-bg);}
 
-  /* ---------- cover tile ---------- */
-  .cover{position:relative; aspect-ratio:1/1; display:flex; align-items:flex-end; padding:18px; box-sizing:border-box; color:#fff;}
+  .cover{position:relative; aspect-ratio:1/1; display:flex; align-items:flex-end; padding:18px; box-sizing:border-box; color:#fff; overflow:hidden;}
   .cover::after{content:""; position:absolute; inset:0;
     background:radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,.22), transparent 55%),
                linear-gradient(to top, rgba(20,14,10,.38), transparent 55%);
     pointer-events:none;}
+  .cover.has-img{padding:0;}
+  .cover.has-img::after{background:none;}
+  .cover img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;}
   .cover .eyebrow{position:absolute; top:16px; left:18px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; opacity:.9; z-index:1;}
   .cover h2{
     position:relative; z-index:1; margin:0;
@@ -107,28 +104,24 @@
     font-weight:500; font-size:clamp(20px,6vw,26px); line-height:1.18; text-wrap:balance;
     text-shadow:0 1px 8px rgba(20,14,10,.25);
   }
-  /* platform palettes */
   .p-instagram{background:linear-gradient(140deg,#B98ABF,#7D4E86);}
   .p-substack{background:linear-gradient(140deg,#E5A268,#B96E33);}
   .p-linkedin{background:linear-gradient(140deg,#7FA3C6,#3E6A96);}
   .p-none{background:linear-gradient(140deg,#C4B49C,#8C7A60);}
 
-  /* ---------- card body ---------- */
   .body{padding:11px 14px 14px;}
   .rowline{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-  .tag{
-    font-size:11px; font-weight:600; letter-spacing:.04em;
-    background:var(--chipbg); color:var(--muted);
-    padding:3px 9px; border-radius:999px;
-  }
+  .cardtitle{font-size:13.5px; font-weight:600; width:100%; margin:0 0 2px;}
+  .tag{font-size:11px; font-weight:600; letter-spacing:.04em; background:var(--chipbg); color:var(--muted); padding:3px 9px; border-radius:999px;}
   .openlink{margin-left:auto; font-size:11.5px; color:var(--accent); text-decoration:none; white-space:nowrap;}
   .openlink:hover{text-decoration:underline;}
 
-  /* ---------- grid view ---------- */
   .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:3px;}
   .grid a.cell{position:relative; display:block; aspect-ratio:1/1; overflow:hidden; color:#fff; text-decoration:none;}
   .cell .cover{position:absolute; inset:0; padding:10px;}
+  .cell .cover.has-img{padding:0;}
   .cell .cover h2{font-size:12.5px; line-height:1.25; text-shadow:0 1px 6px rgba(20,14,10,.35);}
+  .cell .cover.has-img h2{display:none;}
   .cell .cover .eyebrow{display:none;}
   .cell .dot{position:absolute; left:9px; bottom:9px; z-index:2; width:8px; height:8px; border-radius:50%; box-shadow:0 0 0 2px rgba(255,255,255,.75);}
   .d-done{background:#4C9960;} .d-prog{background:#6E93C4;} .d-todo{background:#B9B0A6;}
@@ -136,24 +129,32 @@
 
   .legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; color:var(--muted); font-size:11px;}
   .legend i{width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px;}
-  .empty{
-    border:1px dashed var(--line); border-radius:12px;
-    color:var(--muted); text-align:center; padding:44px 24px; font-size:13.5px; line-height:1.6;
-  }
-  .empty a{color:var(--accent);}
+  .empty{border:1px dashed var(--line); border-radius:12px; color:var(--muted); text-align:center; padding:44px 24px; font-size:13.5px; line-height:1.6;}
   .foot{margin-top:26px; text-align:center; color:var(--muted); font-size:11px; line-height:1.6;}
   [hidden]{display:none !important;}
 </style>
-
+</head>
+<body>
 <div class="wrap">
   <header class="profile">
     <div class="avatar">d</div>
     <div class="who">
       <div class="handle">Dinamita · content planning</div>
-      <div class="sub">Feed preview · Notion “Dinamita - content planing”</div>
+      <div class="sub">Sincronizado desde Notion</div>
     </div>
     <div class="counts"><b id="count">0</b><span>posts</span></div>
   </header>
+
+  <div class="actionbar">
+    <a class="abtn ghost" href="https://app.notion.com/p/39e3cb1163a6807182aef562ae2c9322?v=39e3cb1163a6808e86c6000c23dd1844" target="_blank" rel="noopener">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 1.5v9M1.5 6h9"/></svg>
+      Nuevo post
+    </a>
+    <a class="abtn primary" href="https://github.com/mcgpower/notion-widgets/actions/workflows/update-feed.yml" target="_blank" rel="noopener" title="Abre GitHub y pulsa 'Run workflow' para actualizar al momento">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10.5 6a4.5 4.5 0 1 1-1.3-3.2M9.5 1v2.3H7.2"/></svg>
+      Actualizar ahora
+    </a>
+  </div>
 
   <div class="controls">
     <div class="chips" id="chips" role="group" aria-label="Filtrar por plataforma">
@@ -176,8 +177,7 @@
   <main id="grid" class="grid" hidden></main>
   <div class="empty" id="empty" hidden>
     Nada por aquí todavía.<br>
-    Añade posts a la base <b>“Dinamita - content planing”</b> en Notion
-    y pídele a Claude que actualice el widget.
+    Añade posts a la base <b>&ldquo;Dinamita - content planing&rdquo;</b> en Notion.
   </div>
 
   <div class="legend" id="legend" hidden>
@@ -186,19 +186,12 @@
     <span><i class="d-todo"></i>Sin empezar</span>
   </div>
 
-  <p class="foot">
-    Snapshot de la base de Notion — se actualiza al pedirle a Claude “refresh the feed widget”.<br>
-    Las portadas se generan a partir del título y la plataforma.
-  </p>
+  <p class="foot">Se actualiza solo cada 30 min · “Actualizar ahora” abre GitHub: pulsa allí <b>Run workflow</b> y en ~2 min recarga esta página.</p>
 </div>
 
 <script>
-/* Rows from Notion database "Dinamita - content planing"
-   (collection://39e3cb11-63a6-808d-b432-000b91030930) — snapshot 2026-07-15 */
-const POSTS = [
-  {title:"Sin título", estado:"Sin empezar", tags:[], fecha:"2026-07-15",
-   url:"https://app.notion.com/p/39e3cb1163a6808ba72bd345a0ee8774"}
-];
+const DATA = {"posts":[{"title":"Red 9 · Hype reds and tolerance","estado":"Planificado","tags":["Instagram"],"fecha":"2026-10-30","cover":null,"url":"https://app.notion.com/p/Red-9-Hype-reds-and-tolerance-39f3cb1163a68196a317ecc9d3940275"},{"title":"Red 8 · The same red is a different bill of materials","estado":"Planificado","tags":["Instagram"],"fecha":"2026-10-27","cover":null,"url":"https://app.notion.com/p/Red-8-The-same-red-is-a-different-bill-of-materials-39f3cb1163a6813fa0dfeb86c0733c46"},{"title":"Red 7 · One red, five jobs","estado":"Planificado","tags":["Instagram"],"fecha":"2026-10-23","cover":null,"url":"https://app.notion.com/p/Red-7-One-red-five-jobs-39f3cb1163a681dfbc1cd6e08f1aa141"},{"title":"Red 6 · Reel — the afterimage (stare at red, see green)","estado":"Planificado","tags":["Instagram"],"fecha":"2026-10-20","cover":null,"url":"https://app.notion.com/p/Red-6-Reel-the-afterimage-stare-at-red-see-green-39f3cb1163a68183bdd8c8e1adf99eb8"},{"title":"Red 5 · Reel — every red on one race day","estado":"Planificado","tags":["Instagram"],"fecha":"2026-10-16","cover":null,"url":"https://app.notion.com/p/Red-5-Reel-every-red-on-one-race-day-39f3cb1163a681ecace6edda031626cd"},{"title":"Red 4 · Red as intoxicant — dosage is a system","estado":"Planificado","tags":["Instagram"],"fecha":"2026-10-13","cover":null,"url":"https://app.notion.com/p/Red-4-Red-as-intoxicant-dosage-is-a-system-39f3cb1163a6818dab30c407b0e100d0"},{"title":"Red 3 · A history of red (cochineal)","estado":"Planificado","tags":["Instagram"],"fecha":"2026-10-09","cover":null,"url":"https://app.notion.com/p/Red-3-A-history-of-red-cochineal-39f3cb1163a6819a945cc0e4808cd3ae"},{"title":"Red 2 · LAUNCH — Dinamita is open (in red)","estado":"Planificado","tags":["Instagram"],"fecha":"2026-10-06","cover":null,"url":"https://app.notion.com/p/Red-2-LAUNCH-Dinamita-is-open-in-red-39f3cb1163a6811f8b65f8eb51939f15"},{"title":"Red 1 · Red means five things — the launch essay (Substack anchor)","estado":"Planificado","tags":["Instagram","substack"],"fecha":"2026-10-02","cover":null,"url":"https://app.notion.com/p/Red-1-Red-means-five-things-the-launch-essay-Substack-anchor-39f3cb1163a6816bab7fe28ee56f4cc2"},{"title":"Blue 9 · One blue, two readings","estado":"Planificado","tags":["Instagram"],"fecha":"2026-09-29","cover":null,"url":"https://app.notion.com/p/Blue-9-One-blue-two-readings-39f3cb1163a68174ae30e7a765f448da"},{"title":"Blue 8 · You can't trademark a hue","estado":"Planificado","tags":["Instagram"],"fecha":"2026-09-25","cover":null,"url":"https://app.notion.com/p/Blue-8-You-can-t-trademark-a-hue-39f3cb1163a68188ae95cf45b79ec50c"},{"title":"Blue 7 · The blues that are materials, not colours","estado":"Planificado","tags":["Instagram"],"fecha":"2026-09-22","cover":null,"url":"https://app.notion.com/p/Blue-7-The-blues-that-are-materials-not-colours-39f3cb1163a681b8957ecaf14ea976e9"},{"title":"Blue 6 · Ration your hero blue","estado":"Planificado","tags":["Instagram"],"fecha":"2026-09-18","cover":null,"url":"https://app.notion.com/p/Blue-6-Ration-your-hero-blue-39f3cb1163a681219167e7741c634f19"},{"title":"Blue 5 · Reel — sky to sunset (turbid media)","estado":"Planificado","tags":["Instagram"],"fecha":"2026-09-15","cover":null,"url":"https://app.notion.com/p/Blue-5-Reel-sky-to-sunset-turbid-media-39f3cb1163a681728e99d4374cef081b"},{"title":"Blue 4 · Reel — every blue in one kit reveal","estado":"Planificado","tags":["Instagram"],"fecha":"2026-09-11","cover":null,"url":"https://app.notion.com/p/Blue-4-Reel-every-blue-in-one-kit-reveal-39f3cb1163a681f4949fdd8c72a5b9ca"},{"title":"Blue 3 · The default-blue problem","estado":"Planificado","tags":["Instagram"],"fecha":"2026-09-08","cover":null,"url":"https://app.notion.com/p/Blue-3-The-default-blue-problem-39f3cb1163a68179a79cf5b62b314571"},{"title":"Blue 2 · A history of blue","estado":"Planificado","tags":["Instagram"],"fecha":"2026-09-04","cover":null,"url":"https://app.notion.com/p/Blue-2-A-history-of-blue-39f3cb1163a6813184f9d42fb9619f8a"},{"title":"Blue 1 · His Blue — the blue essay (Substack anchor)","estado":"Planificado","tags":["Instagram","substack"],"fecha":"2026-09-01","cover":null,"url":"https://app.notion.com/p/Blue-1-His-Blue-the-blue-essay-Substack-anchor-39f3cb1163a6818f9208d28b87f84a71"},{"title":"White 9 · The whites nobody specced","estado":"Planificado","tags":["Instagram"],"fecha":"2026-08-28","cover":null,"url":"https://app.notion.com/p/White-9-The-whites-nobody-specced-39e3cb1163a6812dbc74d37106c5f9a7"},{"title":"White 8 · The whites that yellow, and the whites that hold","estado":"Planificado","tags":["Instagram"],"fecha":"2026-08-25","cover":null,"url":"https://app.notion.com/p/White-8-The-whites-that-yellow-and-the-whites-that-hold-39e3cb1163a68101b234cce7ee866364"},{"title":"White 7 · White in retail vs white in sport","estado":"Planificado","tags":["Instagram"],"fecha":"2026-08-21","cover":null,"url":"https://app.notion.com/p/White-7-White-in-retail-vs-white-in-sport-39e3cb1163a681f1bd34dc1712cd7d79"},{"title":"White 6 · Warm white vs optic white","estado":"Planificado","tags":["Instagram"],"fecha":"2026-08-18","cover":null,"url":"https://app.notion.com/p/White-6-Warm-white-vs-optic-white-39e3cb1163a6810c8283dedc75f05a74"},{"title":"White 5 · Reel — whites at British Fashion Week 2026","estado":"Planificado","tags":["Instagram"],"fecha":"2026-08-14","cover":null,"url":"https://app.notion.com/p/White-5-Reel-whites-at-British-Fashion-Week-2026-39e3cb1163a68185b397e8486c830aeb"},{"title":"White 4 · Reel — whites at Paris Fashion Week 2026","estado":"Planificado","tags":["Instagram"],"fecha":"2026-08-11","cover":null,"url":"https://app.notion.com/p/White-4-Reel-whites-at-Paris-Fashion-Week-2026-39e3cb1163a6811fb598c398d98195c0"},{"title":"White 3 · White and performance","estado":"Planificado","tags":["Instagram"],"fecha":"2026-08-07","cover":null,"url":"https://app.notion.com/p/White-3-White-and-performance-39e3cb1163a681c397aff9a54fc70d36"},{"title":"White 2 · A history of white","estado":"Planificado","tags":["Instagram"],"fecha":"2026-08-04","cover":null,"url":"https://app.notion.com/p/White-2-A-history-of-white-39e3cb1163a681f99f83f069aee2df66"},{"title":"White 1 · Lace — the white essay (Substack anchor)","estado":"Planificado","tags":["Instagram","substack"],"fecha":"2026-08-01","cover":null,"url":"https://app.notion.com/p/White-1-Lace-the-white-essay-Substack-anchor-39e3cb1163a681328304e2e21129ff6c"}]};
+const POSTS = DATA.posts || [];
 
 const STATUS = {
   "Publicado":  {cls:"s-done", dot:"d-done"},
@@ -206,39 +199,44 @@ const STATUS = {
   "Sin empezar":{cls:"s-todo", dot:"d-todo"}
 };
 const platClass = tags => {
-  const t = (tags[0] || "").toLowerCase();
-  return t.includes("insta") ? "p-instagram" : t.includes("sub") ? "p-substack" : t.includes("link") ? "p-linkedin" : "p-none";
+  const t = ((tags && tags[0]) || "").toLowerCase();
+  return t.indexOf("insta") >= 0 ? "p-instagram" : t.indexOf("sub") >= 0 ? "p-substack" : t.indexOf("link") >= 0 ? "p-linkedin" : "p-none";
 };
-const fmtDate = d => d ? new Date(d + "T12:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"}) : "Sin fecha";
-const shortDate = d => d ? new Date(d + "T12:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"}) : "";
-const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const fmtDate = d => d ? new Date(d.slice(0,10) + "T12:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"}) : "Sin fecha";
+const shortDate = d => d ? new Date(d.slice(0,10) + "T12:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"}) : "";
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
 
 function coverHTML(p){
+  if(p.cover){
+    return '<div class="cover has-img"><img src="' + esc(p.cover) + '" alt="' + esc(p.title) + '" loading="lazy"></div>';
+  }
   return '<div class="cover ' + platClass(p.tags) + '">'
     + '<span class="eyebrow">' + (p.tags.length ? esc(p.tags.join(" · ")) : "Sin plataforma") + '</span>'
     + '<h2>' + esc(p.title) + '</h2></div>';
 }
 
 function renderFeed(list){
-  return list.map(p => {
+  return list.map(function(p){
     const st = STATUS[p.estado] || STATUS["Sin empezar"];
     return '<article class="post">'
       + '<div class="post-head"><div class="avatar">d</div>'
       +   '<div class="post-meta"><div class="post-handle">dinamita</div>'
       +   '<div class="post-date">' + fmtDate(p.fecha) + '</div></div>'
-      +   '<span class="status ' + st.cls + '">' + p.estado + '</span></div>'
+      +   '<span class="status ' + st.cls + '">' + esc(p.estado) + '</span></div>'
       + coverHTML(p)
-      + '<div class="body"><div class="rowline">'
-      +   p.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join("")
-      +   '<a class="openlink" href="' + p.url + '" target="_blank" rel="noopener">Abrir en Notion ↗</a>'
+      + '<div class="body">'
+      +   (p.cover ? '<p class="cardtitle">' + esc(p.title) + '</p>' : '')
+      +   '<div class="rowline">'
+      +   p.tags.map(function(t){ return '<span class="tag">' + esc(t) + '</span>'; }).join("")
+      +   '<a class="openlink" href="' + esc(p.url) + '" target="_blank" rel="noopener">Abrir en Notion ↗</a>'
       + '</div></div></article>';
   }).join("");
 }
 
 function renderGrid(list){
-  return list.map(p => {
+  return list.map(function(p){
     const st = STATUS[p.estado] || STATUS["Sin empezar"];
-    return '<a class="cell" href="' + p.url + '" target="_blank" rel="noopener" title="' + esc(p.title) + ' · ' + p.estado + '">'
+    return '<a class="cell" href="' + esc(p.url) + '" target="_blank" rel="noopener" title="' + esc(p.title) + ' · ' + esc(p.estado) + '">'
       + coverHTML(p)
       + '<span class="dot ' + st.dot + '"></span>'
       + (p.fecha ? '<span class="celldate">' + shortDate(p.fecha) + '</span>' : '')
@@ -247,10 +245,10 @@ function renderGrid(list){
 }
 
 let filter = "all", view = "feed";
-const $ = id => document.getElementById(id);
+const $ = function(id){ return document.getElementById(id); };
 
 function draw(){
-  const list = POSTS.filter(p => filter === "all" || p.tags.includes(filter));
+  const list = POSTS.filter(function(p){ return filter === "all" || p.tags.indexOf(filter) >= 0; });
   $("count").textContent = list.length;
   $("empty").hidden = list.length > 0;
   $("feed").hidden = view !== "feed" || list.length === 0;
@@ -260,14 +258,14 @@ function draw(){
   else { $("grid").innerHTML = renderGrid(list); }
 }
 
-$("chips").addEventListener("click", e => {
+$("chips").addEventListener("click", function(e){
   const b = e.target.closest(".chip"); if(!b) return;
   filter = b.dataset.f;
-  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b ? "true" : "false"));
+  document.querySelectorAll(".chip").forEach(function(c){ c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
   draw();
 });
-$("btnFeed").addEventListener("click", () => { view = "feed"; syncView(); });
-$("btnGrid").addEventListener("click", () => { view = "grid"; syncView(); });
+$("btnFeed").addEventListener("click", function(){ view = "feed"; syncView(); });
+$("btnGrid").addEventListener("click", function(){ view = "grid"; syncView(); });
 function syncView(){
   $("btnFeed").setAttribute("aria-pressed", view === "feed" ? "true" : "false");
   $("btnGrid").setAttribute("aria-pressed", view === "grid" ? "true" : "false");
@@ -275,3 +273,5 @@ function syncView(){
 }
 draw();
 </script>
+</body>
+</html>
